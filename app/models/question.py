@@ -5,4 +5,4 @@ class Question(db.Model):
     text = db.Column(db.String)
     correct_answer = db.Column(db.String)
     incorrect_answers = db.Column(db.List)
-    category = db.Column(db.String)
+    category = db.Column(db.Integer)
