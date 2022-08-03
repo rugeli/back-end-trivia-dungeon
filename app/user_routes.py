@@ -24,3 +24,69 @@ def validate_user(user_id):
         abort(make_response(jsonify(response), 400))
     return chosen_user
 
+@users_bp.route("", methods=["POST"])
+def create_one_user():
+    request_body = request.get_json()
+
+    try:
+        new_user = User(
+            name=request_body["name"],
+            email=request_body["email"]
+        )
+        new_user.name = request_body["name"]
+        new_user.email = request_body["email"]
+    
+    except KeyError:
+        return {
+            "details": "Invalid data"
+        }, 400
+
+    #add ifs when connects with frontend 
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    response = jsonify({"user": {"id": new_user.user_id, "name": new_user.name, "email": new_user.email}})
+    return response, 201
+
+@users_bp.route("/<user_id>", methods=["GET"])
+def get_one_user(user_id):
+    chosen_user = validate_user(user_id)
+    response = {"user": {
+        "id": chosen_user.user_id,
+        "name": chosen_user.name,
+        "email": chosen_user.email
+    }}
+    if chosen_user.highest_score is not None:
+        response = {"user": {
+        "id": chosen_user.user_id,
+        "name": chosen_user.name,
+        "email": chosen_user.email,
+        "high_score": chosen_user.highest_score,
+        "personal_best_category": chosen_user.highest_category
+    }}
+
+    return jsonify(response),200
+
+@users_bp.route("/<user_id>", methods=["PATCH"])
+def update_highest_score_and_category(user_id):
+    chosen_user = validate_user(user_id)
+    request_body = request.get_json()
+
+    try:
+        chosen_user.highest_score = request_body["highest_score"]
+        chosen_user.highest_category = request_body["highest_category"]
+        #category datatype is int in db, use actual category name str later
+
+    except KeyError:
+        return {
+            "details": "Invalid data"
+        } , 400
+        
+    db.session.commit()
+    response = {"msg": f"Congrats! New high score of {chosen_user.highest_score}pts in category {chosen_user.highest_category}!"}
+    return jsonify(response),200
+
+
+
+
