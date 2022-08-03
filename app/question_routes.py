@@ -32,7 +32,25 @@ def get_all_categories():
     return response, 200
 
 @questions_bp.route("", methods=["POST"])
-def create_ten_questions():
-    request_body = requests.get("https://opentdb.com/api.php?amount=10")
-    questions = request_body.json()
+def create_one_question():
+    request_body = requests.get("https://opentdb.com/api.php?amount=10").json()
+    questions = request_body["results"]
+    
+    for question in questions:
+        incorrect_answers = question["incorrect_answers"]
+        new_question = Question(
+            text=question["question"],
+            correct_answer=question["correct_answer"],
+            incorrect_answer_one=incorrect_answers[0]
+        )
+        if len(incorrect_answers) > 1:
+            new_question.incorrect_answer_two=incorrect_answers[1]
+            new_question.incorrect_answer_three=incorrect_answers[2]
+        
+        db.session.add(new_question)
+    db.session.commit()
+
+
+
+    return jsonify(questions), 200
     

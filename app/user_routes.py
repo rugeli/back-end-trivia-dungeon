@@ -77,6 +77,7 @@ def update_highest_score_and_category(user_id):
         chosen_user.highest_score = request_body["highest_score"]
         chosen_user.highest_category = request_body["highest_category"]
         #category datatype is int in db, use actual category name str later
+        #validate category number
 
     except KeyError:
         return {
