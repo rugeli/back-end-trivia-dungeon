@@ -6,5 +6,5 @@ class Question(db.Model):
     correct_answer = db.Column(db.String(100))
     incorrect_answer_one = db.Column(db.String(100))
     incorrect_answer_two = db.Column(db.String(100))
-    incorrect_answer_three = db.Column(db.String(100), nullable=True)
+    incorrect_answer_three = db.Column(db.String(100))
     category = db.Column(db.Integer)

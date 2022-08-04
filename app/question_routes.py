@@ -64,6 +64,16 @@ def create_one_question():
     db.session.commit()
 
 
+    response = {"msg": f"{len(questions)} questions have been successfully added"}
+    return jsonify(response), 201
 
-    return jsonify(questions), 200
+
+@questions_bp.route("/<question_id>", methods=["DELETE"])
+def delete_one_question(question_id):
+    chosen_question = validate_question(question_id)
+    db.session.delete(chosen_question)
+    db.session.commit()
+
+    response = {"msg": f"delete question with id: {chosen_question.question_id}"}
+    return jsonify(response), 200
     
