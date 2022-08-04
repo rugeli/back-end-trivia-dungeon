@@ -33,8 +33,14 @@ def get_all_categories():
 
 @questions_bp.route("", methods=["POST"])
 def create_one_question():
+    # get questions 
     request_body = requests.get("https://opentdb.com/api.php?amount=10").json()
     questions = request_body["results"]
+
+    # get categories
+    category_request_body = requests.get("https://opentdb.com/api_category.php").json()
+    categories = category_request_body["trivia_categories"]
+
     
     for question in questions:
         incorrect_answers = question["incorrect_answers"]
@@ -43,10 +49,17 @@ def create_one_question():
             correct_answer=question["correct_answer"],
             incorrect_answer_one=incorrect_answers[0]
         )
-        if len(incorrect_answers) > 1:
-            new_question.incorrect_answer_two=incorrect_answers[1]
-            new_question.incorrect_answer_three=incorrect_answers[2]
-        
+
+        if question["type"] == "multiple":
+                new_question.incorrect_answer_two=incorrect_answers[1]
+                new_question.incorrect_answer_three=incorrect_answers[2]
+
+        for category in categories:
+            if question["category"] == category["name"]:
+                new_question.category=category["id"]
+                
+
+            
         db.session.add(new_question)
     db.session.commit()
 
