@@ -26,13 +26,19 @@ def validate_user(user_id):
 
 @users_bp.route("", methods=["POST"])
 def create_one_user():
-    request_body = request.get_json()
+    request_body = request.get_json()["postUser"]
+    print("request_body", request_body)
+    if bool(User.query.filter_by(netlify_id=request_body["netlify_id"]).first()):
+        return {"msg": "Welcome back!"}
 
     try:
         new_user = User(
+            netlify_id=request_body["netlify_id"],
             name=request_body["name"],
             email=request_body["email"]
         )
+
+        new_user.netlify_id = request_body["netlify_id"]
         new_user.name = request_body["name"]
         new_user.email = request_body["email"]
     
@@ -41,12 +47,10 @@ def create_one_user():
             "details": "Invalid data"
         }, 400
 
-    #add ifs when connects with frontend 
-
     db.session.add(new_user)
     db.session.commit()
 
-    response = jsonify({"user": {"id": new_user.user_id, "name": new_user.name, "email": new_user.email}})
+    response = jsonify({"user": {"id": new_user.user_id, "netlify_id": new_user.netlify_id, "name": new_user.name, "email": new_user.email}})
     return response, 201
 
 @users_bp.route("/<user_id>", methods=["GET"])
@@ -54,12 +58,14 @@ def get_one_user(user_id):
     chosen_user = validate_user(user_id)
     response = {"user": {
         "id": chosen_user.user_id,
+        "netlify_id": chosen_user.netlify_id,
         "name": chosen_user.name,
         "email": chosen_user.email
     }}
     if chosen_user.highest_score is not None:
         response = {"user": {
         "id": chosen_user.user_id,
+        "netlify_id": chosen_user.netlify_id,
         "name": chosen_user.name,
         "email": chosen_user.email,
         "high_score": chosen_user.highest_score,

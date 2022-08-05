@@ -27,9 +27,9 @@ def validate_question(question_id):
 
 @questions_bp.route("/categories", methods=["GET"])
 def get_all_categories():
-    request_body = requests.get("https://opentdb.com/api_category.php")
-    response = request_body.json()
-    return response, 200
+    request_body = requests.get("https://opentdb.com/api_category.php").json()
+    response = request_body["trivia_categories"]
+    return jsonify(response), 200
 
 @questions_bp.route("", methods=["POST"])
 def create_one_question():
