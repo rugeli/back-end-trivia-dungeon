@@ -79,16 +79,17 @@ def update_highest_score_and_category(user_id):
     chosen_user = validate_user(user_id)
     request_body = request.get_json()
 
-    try:
-        chosen_user.highest_score = request_body["highest_score"]
-        chosen_user.highest_category = request_body["highest_category"]
-        #category datatype is int in db, use actual category name str later
-        #validate category number
+    if (chosen_user.highest_score and request_body["highest_score"] > chosen_user.highest_score) or not chosen_user.highest_score:
 
-    except KeyError:
-        return {
-            "details": "Invalid data"
-        } , 400
+
+        try:
+            chosen_user.highest_score = request_body["highest_score"]
+            chosen_user.highest_category = request_body["highest_category"]
+
+        except KeyError:
+            return {
+                "details": "Invalid data"
+            } , 400
         
     db.session.commit()
     response = {"msg": f"Congrats! New high score of {chosen_user.highest_score}pts in category {chosen_user.highest_category}!"}
