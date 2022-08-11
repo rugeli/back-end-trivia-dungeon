@@ -11,17 +11,18 @@ load_dotenv()
 
 users_bp = Blueprint("users_bp", __name__, url_prefix="/users")
 
-def validate_user(user_id):
-    try:
-        user = int(user_id)
-    except ValueError:
-        response = {"msg": f"Invalid id: {user_id}"}
-        abort(make_response(jsonify(response), 400))
-    chosen_user = User.query.get(user_id)
+def validate_user(netlify_id):
+    # try:
+    #     user = int(user_id)
+    # except ValueError:
+    #     response = {"msg": f"Invalid id: {user_id}"}
+    #     abort(make_response(jsonify(response), 400))
+    chosen_user = User.query.filter_by(netlify_id=netlify_id).first()
 
     if chosen_user is None:
-        response = {"msg": f"Could not find user with id #{user_id}"}
+        response = {"msg": f"Could not find user with id #{netlify_id}"}
         abort(make_response(jsonify(response), 400))
+    print("Chosen user", chosen_user)
     return chosen_user
 
 @users_bp.route("", methods=["POST"])
@@ -53,9 +54,9 @@ def create_one_user():
     response = jsonify({"user": {"id": new_user.user_id, "netlify_id": new_user.netlify_id, "name": new_user.name, "email": new_user.email}})
     return response, 201
 
-@users_bp.route("/<user_id>", methods=["GET"])
-def get_one_user(user_id):
-    chosen_user = validate_user(user_id)
+@users_bp.route("/<netlify_id>", methods=["GET"])
+def get_one_user(netlify_id):
+    chosen_user = validate_user(netlify_id)
     response = {"user": {
         "id": chosen_user.user_id,
         "netlify_id": chosen_user.netlify_id,
@@ -74,14 +75,12 @@ def get_one_user(user_id):
 
     return jsonify(response),200
 
-@users_bp.route("/<user_id>", methods=["PATCH"])
-def update_highest_score_and_category(user_id):
-    chosen_user = validate_user(user_id)
+@users_bp.route("/<netlify_id>", methods=["PUT"])
+def update_highest_score_and_category(netlify_id):
+    chosen_user = validate_user(netlify_id)
     request_body = request.get_json()
 
-    if (chosen_user.highest_score and request_body["highest_score"] > chosen_user.highest_score) or not chosen_user.highest_score:
-
-
+    if not chosen_user.highest_score or request_body["highest_score"] > chosen_user.highest_score:
         try:
             chosen_user.highest_score = request_body["highest_score"]
             chosen_user.highest_category = request_body["highest_category"]
@@ -92,8 +91,30 @@ def update_highest_score_and_category(user_id):
             } , 400
         
     db.session.commit()
-    response = {"msg": f"Congrats! New high score of {chosen_user.highest_score}pts in category {chosen_user.highest_category}!"}
+    response = {"msg": f"High score of {chosen_user.highest_score}pts in category {chosen_user.highest_category}!"}
     return jsonify(response),200
+
+@users_bp.route("/leaderboard", methods=["GET"])
+def get_leader_board():
+    response = User.query.filter(User.highest_score != None).order_by(User.highest_score.desc()).limit(10).all()
+    print (response)
+
+    return jsonify(list(map(lambda x: ({
+        "name": x.name,
+        "email": x.email,
+        "high_score": x.highest_score,
+        "category": x.highest_category
+    }), response))),200
+    
+
+@users_bp.route("/<netlify_id>", methods=["DELETE"])
+def delete_one_user(netlify_id):
+    chosen_user = validate_user(netlify_id)
+    db.session.delete(chosen_user)
+    db.session.commit()
+
+    response = {"msg": f"delete user with id: {chosen_user.user_id}"}
+    return jsonify(response), 200
 
 
 
