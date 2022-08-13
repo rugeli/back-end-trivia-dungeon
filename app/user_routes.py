@@ -22,13 +22,13 @@ def validate_user(netlify_id):
     if chosen_user is None:
         response = {"msg": f"Could not find user with id #{netlify_id}"}
         abort(make_response(jsonify(response), 400))
-    print("Chosen user", chosen_user)
+    # print("Chosen user", chosen_user)
     return chosen_user
 
 @users_bp.route("", methods=["POST"])
 def create_one_user():
     request_body = request.get_json()["postUser"]
-    print("request_body", request_body)
+    # print("request_body", request_body)
     if bool(User.query.filter_by(netlify_id=request_body["netlify_id"]).first()):
         return {"msg": "Welcome back!"}
 
@@ -97,7 +97,7 @@ def update_highest_score_and_category(netlify_id):
 @users_bp.route("/leaderboard", methods=["GET"])
 def get_leader_board():
     response = User.query.filter(User.highest_score != None).order_by(User.highest_score.desc()).limit(10).all()
-    print (response)
+    # print (response)
 
     return jsonify(list(map(lambda x: ({
         "name": x.name,
