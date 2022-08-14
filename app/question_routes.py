@@ -1,14 +1,12 @@
 from flask import Blueprint, request, jsonify, make_response, abort
 from app import db
-from app.models.user import User
-from app.models.match import Match
 from app.models.question import Question
 import requests
-import os
-import json
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# local questions pool for later optimization, not used in trivia dungeon  
 
 questions_bp = Blueprint("questions_bp", __name__, url_prefix="/questions")
 

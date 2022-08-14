@@ -18,7 +18,6 @@ def create_app():
 
 
         from app.models.user import User
-        from app.models.match import Match
         from app.models.question import Question
 
         db.init_app(app)
@@ -27,9 +26,6 @@ def create_app():
         # Register Blueprints here
         from .user_routes import users_bp
         app.register_blueprint(users_bp)
-
-        from .match_routes import matches_bp
-        app.register_blueprint(matches_bp)
 
         from .question_routes import questions_bp
         app.register_blueprint(questions_bp)

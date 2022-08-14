@@ -7,4 +7,3 @@ class User(db.Model):
     email = db.Column(db.String(120), nullable=False)
     highest_score = db.Column(db.Integer)
     highest_category = db.Column(db.Integer)
-    matches = db.relationship("Match", back_populates="user")
