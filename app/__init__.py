@@ -27,17 +27,17 @@ def create_app():
         # mysql.init_app(app)
 
 
-        from app.models.user import User
-        from app.models.question import Question
+        # from app.models.user import User
+        # from app.models.question import Question
 
         db.init_app(app)
         migrate.init_app(app, db)
 
         # Register Blueprints here
-        from .user_routes import users_bp
-        app.register_blueprint(users_bp)
+        # from .user_routes import users_bp
+        # app.register_blueprint(users_bp)
 
-        from .question_routes import questions_bp
-        app.register_blueprint(questions_bp)
+        # from .question_routes import questions_bp
+        # app.register_blueprint(questions_bp)
 
         return app
