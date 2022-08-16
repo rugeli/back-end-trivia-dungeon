@@ -68,7 +68,6 @@ def get_one_user(netlify_id):
     return jsonify(response),200
 
 @users_bp.route("/<netlify_id>", methods=["PUT"])
-@cross_origin()
 def update_highest_score_and_category(netlify_id):
     chosen_user = validate_user(netlify_id)
     request_body = request.get_json()
