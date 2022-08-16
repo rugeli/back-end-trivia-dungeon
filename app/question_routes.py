@@ -3,6 +3,7 @@ from app import db
 from app.models.question import Question
 import requests
 from dotenv import load_dotenv
+from flask_cors import cross_origin
 
 load_dotenv()
 
@@ -24,12 +25,14 @@ def validate_question(question_id):
     return chosen_question
 
 @questions_bp.route("/categories", methods=["GET"])
+@cross_origin()
 def get_all_categories():
     request_body = requests.get("https://opentdb.com/api_category.php").json()
     response = request_body["trivia_categories"]
     return jsonify(response), 200
 
 @questions_bp.route("", methods=["POST"])
+@cross_origin()
 def create_one_question():
     # get questions 
     request_body = requests.get("https://opentdb.com/api.php?amount=10").json()
@@ -67,6 +70,7 @@ def create_one_question():
 
 
 @questions_bp.route("/<question_id>", methods=["DELETE"])
+@cross_origin()
 def delete_one_question(question_id):
     chosen_question = validate_question(question_id)
     db.session.delete(chosen_question)

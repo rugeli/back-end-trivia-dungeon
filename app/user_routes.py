@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, make_response, abort
 from app import db
 from app.models.user import User
 from dotenv import load_dotenv
+from flask_cors import cross_origin
 
 load_dotenv()
 
@@ -16,6 +17,7 @@ def validate_user(netlify_id):
     return chosen_user
 
 @users_bp.route("", methods=["POST"])
+@cross_origin()
 def create_one_user():
     request_body = request.get_json()["postUser"]
     if bool(User.query.filter_by(netlify_id=request_body["netlify_id"]).first()):
@@ -44,6 +46,7 @@ def create_one_user():
     return response, 201
 
 @users_bp.route("/<netlify_id>", methods=["GET"])
+@cross_origin()
 def get_one_user(netlify_id):
     chosen_user = validate_user(netlify_id)
     response = {"user": {
@@ -65,6 +68,7 @@ def get_one_user(netlify_id):
     return jsonify(response),200
 
 @users_bp.route("/<netlify_id>", methods=["PUT"])
+@cross_origin()
 def update_highest_score_and_category(netlify_id):
     chosen_user = validate_user(netlify_id)
     request_body = request.get_json()
@@ -84,6 +88,7 @@ def update_highest_score_and_category(netlify_id):
     return jsonify(response),200
 
 @users_bp.route("/leaderboard", methods=["GET"])
+@cross_origin()
 def get_leader_board():
     response = User.query.filter(User.highest_score != None).order_by(User.highest_score.desc()).limit(10).all()
 
@@ -96,6 +101,7 @@ def get_leader_board():
     
 
 @users_bp.route("/<netlify_id>", methods=["DELETE"])
+@cross_origin()
 def delete_one_user(netlify_id):
     chosen_user = validate_user(netlify_id)
     db.session.delete(chosen_user)
