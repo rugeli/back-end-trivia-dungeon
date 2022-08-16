@@ -1,12 +1,12 @@
-from flask import request, jsonify, make_response, abort
-from app import db, app
+from flask import Blueprint, request, jsonify, make_response, abort
+from app import db
 from app.models.user import User
 from dotenv import load_dotenv
 from flask_cors import cross_origin
 
 load_dotenv()
 
-# users_bp = Blueprint("users_bp", __name__, url_prefix="/users")
+users_bp = Blueprint("users_bp", __name__, url_prefix="/users")
 
 def validate_user(netlify_id):
     chosen_user = User.query.filter_by(netlify_id=netlify_id).first()
@@ -16,7 +16,7 @@ def validate_user(netlify_id):
         abort(make_response(jsonify(response), 400))
     return chosen_user
 
-@app.route("/users", methods=["POST"])
+@users_bp.route("", methods=["POST"])
 @cross_origin()
 def create_one_user():
     request_body = request.get_json()["postUser"]
@@ -45,7 +45,7 @@ def create_one_user():
     response = jsonify({"user": {"id": new_user.user_id, "netlify_id": new_user.netlify_id, "name": new_user.name, "email": new_user.email}})
     return response, 201
 
-@app.route("/users/<netlify_id>", methods=["GET"])
+@users_bp.route("/<netlify_id>", methods=["GET"])
 @cross_origin()
 def get_one_user(netlify_id):
     chosen_user = validate_user(netlify_id)
@@ -67,7 +67,8 @@ def get_one_user(netlify_id):
 
     return jsonify(response),200
 
-@app.route("/users/<netlify_id>", methods=["PUT"])
+@users_bp.route("/<netlify_id>", methods=["PUT"])
+@cross_origin()
 def update_highest_score_and_category(netlify_id):
     chosen_user = validate_user(netlify_id)
     request_body = request.get_json()
@@ -86,7 +87,7 @@ def update_highest_score_and_category(netlify_id):
     response = {"msg": f"High score of {chosen_user.highest_score}pts in category {chosen_user.highest_category}!"}
     return jsonify(response),200
 
-@app.route("/users/leaderboard", methods=["GET"])
+@users_bp.route("/leaderboard", methods=["GET"])
 @cross_origin()
 def get_leader_board():
     response = User.query.filter(User.highest_score != None).order_by(User.highest_score.desc()).limit(10).all()
@@ -99,7 +100,7 @@ def get_leader_board():
     }), response))),200
     
 
-@app.route("/users/<netlify_id>", methods=["DELETE"])
+@users_bp.route("/<netlify_id>", methods=["DELETE"])
 @cross_origin()
 def delete_one_user(netlify_id):
     chosen_user = validate_user(netlify_id)
