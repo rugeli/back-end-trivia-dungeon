@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import os
 from flask_cors import CORS
 
+app = Flask(__name__)
+CORS(app)
 db = SQLAlchemy()
 migrate = Migrate()
 mysql = MySQL()
@@ -13,8 +15,6 @@ load_dotenv()
 
 #holds configurations for the application 
 def create_app():
-        app = Flask(__name__)
-        CORS(app)
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False #part of setting 
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
                 "SQLALCHEMY_DATABASE_URI")
